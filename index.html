@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareOps AI - Complete Case Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body { 
+            background: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar { 
+            background: linear-gradient(180deg, #1a237e 0%, #283593 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .main-content { 
+            margin-left: 250px; 
+            padding: 30px;
+        }
+        .status-critical { 
+            background: #dc3545; 
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .status-due-soon { 
+            background: #ffc107; 
+            color: black;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .status-upcoming { 
+            background: #17a2b8; 
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .card { 
+            border: none; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .card:hover { 
+            transform: translateY(-3px); 
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .ai-tool-card { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        .logo { 
+            font-weight: bold; 
+            font-size: 24px; 
+            color: white;
+            margin-bottom: 30px;
+        }
+        .badge-pill { 
+            font-size: 1.1em; 
+            padding: 8px 15px;
+            border-radius: 50px;
+        }
+        .assessment-row:hover { 
+            background-color: #f8f9fa; 
+            cursor: pointer;
+        }
+        .nav-link { 
+            color: rgba(255,255,255,0.8);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        .nav-link:hover, .nav-link.active { 
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .stats-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .alert-urgent {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="bi bi-shield-check me-2"></i>
+            CareOps AI
+            <div style="font-size: 14px; color: #a0aec0; margin-top: 5px;">Complete Case Management</div>
+        </div>
+        
+        <div class="nav-section mb-4">
+            <div style="font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 10px;">MAIN</div>
+            <div class="nav flex-column">
+                <a href="#" class="nav-link active">
+                    <i class="bi bi-speedometer2 me-3"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-folder me-3"></i> Cases
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-file-text me-3"></i> Forms
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-file-earmark me-3"></i> Documents
+                </a>
+            </div>
+        </div>
+        
+        <div class="nav-section mb-4">
+            <div style="font-size: 12px; color: #a0aec0; text-transform: uppercase; margin-bottom: 10px;">AI TOOLS</div>
+            <div class="nav flex-column">
+                <a href="#" class="nav-link">
+                    <i class="bi bi-robot me-3"></i> AI Insights
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-magic me-3"></i> Form Builder
+                </a>
+            </div>
+        </div>
+        
+        <div style="position: absolute; bottom: 20px; left: 20px; right: 20px;">
+            <div class="d-flex align-items-center">
+                <div style="width: 40px; height: 40px; background: #4a6ee0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; color: white; font-weight: bold;">
+                    SJ
+                </div>
+                <div>
+                    <div style="font-size: 14px;">Sarah Johnson</div>
+                    <div style="font-size: 12px; color: #a0aec0;">Admin</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="mb-1" style="font-weight: 600;">Dashboard</h1>
+                <p class="text-muted mb-0" style="font-size: 16px;">Complete Case Management System</p>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="alert alert-urgent d-flex align-items-center" style="padding: 12px 20px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2" style="color: #ffc107;"></i>
+                    <div>
+                        <strong>5 assessments</strong> due within 7 days
+                        <a href="#" class="ms-2" style="color: #0d6efd; text-decoration: none;">View All →</a>
+                    </div>
+                </div>
+                <button class="btn btn-outline-primary ms-3" style="border-radius: 8px;">
+                    <i class="bi bi-bell"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-uppercase mb-2" style="font-size: 13px;">Active Cases</div>
+                                <h2 class="mb-0" style="font-weight: 700;">24</h2>
+                                <span class="text-success" style="font-size: 14px;">
+                                    <i class="bi bi-arrow-up"></i> 3 new this week
+                                </span>
+                            </div>
+                            <div class="stats-card-icon" style="background: rgba(13, 110, 253, 0.1);">
+                                <i class="bi bi-folder text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-uppercase mb-2" style="font-size: 13px;">Forms Created</div>
+                                <h2 class="mb-0" style="font-weight: 700;">12</h2>
+                                <span class="text-success" style="font-size: 14px;">2 published today</span>
+                            </div>
+                            <div class="stats-card-icon" style="background: rgba(25, 135, 84, 0.1);">
+                                <i class="bi bi-file-text text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-uppercase mb-2" style="font-size: 13px;">AI Interactions</div>
+                                <h2 class="mb-0" style="font-weight: 700;">89</h2>
+                                <span class="text-warning" style="font-size: 14px;">This month</span>
+                            </div>
+                            <div class="stats-card-icon" style="background: rgba(255, 193, 7, 0.1);">
+                                <i class="bi bi-robot text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted text-uppercase mb-2" style="font-size: 13px;">Time Saved</div>
+                                <h2 class="mb-0" style="font-weight: 700;">42h</h2>
+                                <span class="text-info" style="font-size: 14px;">vs manual process</span>
+                            </div>
+                            <div class="stats-card-icon" style="background: rgba(13, 202, 240, 0.1);">
+                                <i class="bi bi-clock text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessments Table -->
+        <div class="card mb-4">
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                <h5 class="mb-0" style="font-weight: 600;">Upcoming Assessments</h5>
+                <button class="btn btn-link text-decoration-none" style="color: #0d6efd;">
+                    View All <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px; padding-left: 25px;">Date</th>
+                                <th>Description</th>
+                                <th style="width: 120px;">Status</th>
+                                <th style="width: 140px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Critical Assessment -->
+                            <tr class="assessment-row">
+                                <td class="align-middle" style="padding-left: 25px;">
+                                    <span class="badge bg-primary badge-pill">30</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">Margaret Anderson - 30-Day Assessment</div>
+                                    <div class="text-muted small">Case #2024-APS-1847 · Adult Protective Services</div>
+                                    <div class="text-danger small mt-1">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <strong>URGENT:</strong> Due Tomorrow (Feb 4, 2026)
+                                    </div>
+                                    <div class="text-muted small">Last assessment: Jan 5, 2026</div>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="status-critical">Critical</span>
+                                </td>
+                                <td class="align-middle">
+                                    <button class="btn btn-danger btn-sm" onclick="startAssessment(1)" style="border-radius: 6px; padding: 6px 16px;">
+                                        Start Now
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Due Soon Assessment -->
+                            <tr class="assessment-row">
+                                <td class="align-middle" style="padding-left: 25px;">
+                                    <span class="badge bg-primary badge-pill">60</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">Robert Chen - 60-Day Assessment</div>
+                                    <div class="text-muted small">Case #2024-ACW-2104 · Alternative Care Waiver</div>
+                                    <div class="text-warning small mt-1">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <strong>Due:</strong> Feb 8, 2026 (5 days)
+                                    </div>
+                                    <div class="text-muted small">Last assessment: Dec 10, 2025</div>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="status-due-soon">Due Soon</span>
+                                </td>
+                                <td class="align-middle">
+                                    <button class="btn btn-warning btn-sm" onclick="startAssessment(2)" style="border-radius: 6px; padding: 6px 16px;">
+                                        Start Assessment
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                            <!-- Upcoming Assessment -->
+                            <tr class="assessment-row">
+                                <td class="align-middle" style="padding-left: 25px;">
+                                    <span class="badge bg-primary badge-pill">90</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">Dorothy Williams - 90-Day Assessment</div>
+                                    <div class="text-muted small">Case #2024-LTC-1923 · Long-term Care</div>
+                                    <div class="text-info small mt-1">
+                                        <i class="bi bi-calendar-event"></i>
+                                        <strong>Due:</strong> Feb 15, 2026 (12 days)
+                                    </div>
+                                    <div class="text-muted small">Last assessment: Nov 17, 2025</div>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="status-upcoming">Upcoming</span>
+                                </td>
+                                <td class="align-middle">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="scheduleAssessment(3)" style="border-radius: 6px; padding: 6px 16px;">
+                                        Schedule
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Annual Assessment Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="mb-0" style="font-weight: 600;">Annual Assessments</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-info badge-pill me-3">1YR</span>
+                            <div>
+                                <div class="fw-bold">James Wilson - Annual Assessment</div>
+                                <div class="text-muted small">Developmental Disabilities</div>
+                                <div class="text-muted small">
+                                    <i class="bi bi-calendar"></i>
+                                    <strong>Due:</strong> Mar 1, 2026 (27 days)
+                                </div>
+                                <div class="text-muted small">Last assessment: Mar 1, 2025</div>
+                                <button class="btn btn-outline-info btn-sm mt-2" onclick="scheduleAnnual()" style="border-radius: 6px;">
+                                    Schedule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-3 mt-md-0">
+                        <div class="d-flex align-items-start">
+                            <span class="badge bg-primary badge-pill me-3">30</span>
+                            <div>
+                                <div class="fw-bold">Sarah Martinez - 30-Day Assessment</div>
+                                <div class="text-muted small">Case #2024-APS-2001 · Adult Protective Services</div>
+                                <div class="text-success small">
+                                    <i class="bi bi-calendar"></i>
+                                    <strong>Due:</strong> Feb 20, 2026 (17 days)
+                                </div>
+                                <div class="text-muted small">Last assessment: Jan 21, 2026</div>
+                                <button class="btn btn-outline-success btn-sm mt-2" onclick="scheduleAssessment(4)" style="border-radius: 6px;">
+                                    Schedule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Tools Section -->
+        <h5 class="mb-3" style="font-weight: 600;">AI Tools</h5>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card ai-tool-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; margin-right: 15px;">
+                                <i class="bi bi-plus-circle" style="font-size: 20px;"></i>
+                            </div>
+                            <h5 class="mb-0">Create New Form</h5>
+                        </div>
+                        <p class="mb-0" style="opacity: 0.9;">Build custom intake forms with AI assistance</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card ai-tool-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; margin-right: 15px;">
+                                <i class="bi bi-palette" style="font-size: 20px;"></i>
+                            </div>
+                            <h5 class="mb-0">Design Your Logo</h5>
+                        </div>
+                        <p class="mb-0" style="opacity: 0.9;">AI-powered logo creator for your agency</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card ai-tool-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 10px; margin-right: 15px;">
+                                <i class="bi bi-chat-dots" style="font-size: 20px;"></i>
+                            </div>
+                            <h5 class="mb-0">Ask AI Assistant</h5>
+                        </div>
+                        <p class="mb-0" style="opacity: 0.9;">Get help with cases, forms, and workflows</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        function startAssessment(id) {
+            const clients = {
+                1: "Margaret Anderson",
+                2: "Robert Chen",
+                3: "Dorothy Williams",
+                4: "Sarah Martinez"
+            };
+            alert(`🚀 Starting assessment for: ${clients[id]}\n\nThis would open the assessment form in the real system.`);
+        }
+
+        function scheduleAssessment(id) {
+            const clients = {
+                1: "Margaret Anderson",
+                2: "Robert Chen",
+                3: "Dorothy Williams",
+                4: "Sarah Martinez"
+            };
+            alert(`📅 Scheduling assessment for: ${clients[id]}\n\nChoose date and time for the assessment.`);
+        }
+
+        function scheduleAnnual() {
+            alert(`📅 Scheduling Annual Assessment for: James Wilson\n\nAnnual review for Developmental Disabilities case.`);
+        }
+
+        // Add click functionality to assessment rows
+        document.querySelectorAll('.assessment-row').forEach(row => {
+            row.addEventListener('click', function(e) {
+                if (!e.target.closest('button')) {
+                    const clientName = this.querySelector('.fw-bold').textContent;
+                    alert(`📋 Viewing details for: ${clientName}`);
+                }
+            });
+        });
+
+        // Simulate loading
+        console.log('✅ CareOps AI Dashboard loaded successfully!');
+        console.log('🔄 Next: Connect to backend API for real data.');
+    </script>
+</body>
+</html>
